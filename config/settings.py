@@ -26,7 +26,7 @@ ADMIN_URL = config('ADMIN_URL', default='admin')
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = "django-insecure-r%se!b75p8=6s_2=#kusx-6lm+14e=e&y$$u!4l268qj^#2)g+"
+SECRET_KEY = " "
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True

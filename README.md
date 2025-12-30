@@ -48,5 +48,11 @@ python manage.py migrate
 # 6. Создайте суперпользователя
 python manage.py createsuperuser
 
+screenshots/home.png
+screenshots/admin.png
+screenshots/admin1.png
+screenshots/qr.png
+
+
 # 7. Запустите сервер
 python manage.py runserver 0.0.0.0:8000

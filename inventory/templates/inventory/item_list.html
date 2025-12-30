@@ -1,0 +1,60 @@
+{% extends 'inventory/base.html' %}
+
+{% block content %}
+<div class="row mb-4">
+    <div class="col-md-8">
+        <form method="get" class="d-flex">
+            <input type="text" name="q" class="form-control me-2" 
+                   placeholder="🔍 Найди зарядник, паспорт..." 
+                   value="{{ query|default:'' }}">
+            <button class="btn btn-primary" type="submit">Найти</button>
+        </form>
+    </div>
+</div>
+
+<div class="row mb-4">
+    <div class="col-md-6">
+        <h5>Категории</h5>
+        <a href="?{% if query %}q={{ query }}&{% endif %}" class="badge bg-secondary me-1">Все</a>
+        {% for cat in categories %}
+        <a href="?category={{ cat.id }}{% if query %}&q={{ query }}{% endif %}" 
+           class="badge bg-info me-1">{{ cat.name }}</a>
+        {% endfor %}
+    </div>
+    <div class="col-md-6">
+        <h5>Комнаты</h5>
+        {% for loc in locations %}
+        <a href="?location={{ loc.id }}{% if query %}&q={{ query }}{% endif %}" 
+           class="badge bg-warning me-1">{{ loc.name }}</a>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="row">
+    {% for item in items %}
+    <div class="col-md-4 mb-3">
+        <div class="card item-card">
+            {% if item.photo %}
+            <img src="{{ item.photo.url }}" class="card-img-top" alt="{{ item.name }}">
+            {% else %}
+            <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="no image">
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ item.name }}</h5>
+                <p class="card-text text-muted">
+                    📍 {{ item.location|default:'Не указано' }}<br>
+                    🏷️ {{ item.category|default:'Без категории' }}
+                </p>
+                <a href="{% url 'inventory:item-detail' item.pk %}" class="btn btn-sm btn-primary">
+                    Подробнее →
+                </a>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+        <div class="alert alert-info">Ничего не найдено. Добавьте первую вещь через <a href="/admin/">админку</a>!</div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

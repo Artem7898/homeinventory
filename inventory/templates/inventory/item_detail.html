@@ -1,0 +1,54 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}{{ item.name }} - Инвентарь{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card">
+            {% if item.photo %}
+            <img src="{{ item.photo.url }}" class="card-img-top" alt="{{ item.name }}">
+            {% else %}
+            <img src="https://via.placeholder.com/500x400" class="card-img-top" alt="no image">
+            {% endif %}
+            <div class="card-body">
+                <h2>{{ item.name }}</h2>
+                <p class="lead">{{ item.description|default:'Описание отсутствует' }}</p>
+                
+                <dl class="row">
+                    <dt class="col-sm-4">Категория</dt>
+                    <dd class="col-sm-8">{{ item.category|default:'—' }}</dd>
+                    
+                    <dt class="col-sm-4">Место</dt>
+                    <dd class="col-sm-8">{{ item.location|default:'—' }}</dd>
+                    
+                    <dt class="col-sm-4">Дата покупки</dt>
+                    <dd class="col-sm-8">{{ item.purchase_date|default:'—' }}</dd>
+                    
+                    <dt class="col-sm-4">Цена</dt>
+                    <dd class="col-sm-8">{{ item.price|default:'—' }} ₽</dd>
+                </dl>
+                
+                <a href="{% url 'inventory:item-list' %}" class="btn btn-secondary">← Назад</a>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6 text-center">
+        <h4>QR-код для сканирования</h4>
+        {% if item.qr_code %}
+        <img src="{{ item.qr_code.url }}" alt="QR Code" class="qr-code">
+        <p class="text-muted">Сканируйте телефоном</p>
+        {% else %}
+        <div class="alert alert-warning">QR-код еще не сгенерирован</div>
+        {% endif %}
+        
+        <div class="mt-4">
+            <h5>Для печати</h5>
+            <a href="{{ item.qr_code.url }}" download class="btn btn-outline-primary">
+                Скачать QR-код
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

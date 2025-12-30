@@ -1,0 +1,8 @@
+{% extends 'admin/base.html' %}
+{% block content %}
+<h1>Статистика инвентаря</h1>
+<div class="row">
+    <div class="col-md-3">Всего вещей: <strong>{{ stats.total_items }}</strong></div>
+    <div class="col-md-3">Общая стоимость: <strong>{{ stats.total_value }}₽</strong></div>
+</div>
+{% endblock %}

@@ -1,0 +1,42 @@
+{% extends 'inventory/base.html' %}
+
+{% block title %}QR Сканер{% endblock %}
+
+{% block content %}
+<div class="text-center mt-5">
+    <h1>📱 Сканируйте QR-код</h1>
+    <p>Наведите камеру на код на коробке</p>
+    
+    <!-- HTML5 QR Code Library -->
+    <div id="qr-reader" style="width: 100%; max-width: 500px; margin: 0 auto;"></div>
+    <div id="qr-result" class="mt-3"></div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+<script>
+    function onScanSuccess(decodedText, decodedResult) {
+        // decodedText = "http://127.0.0.1:8000/item/1/"
+        const itemId = decodedText.split('/').slice(-2, -1)[0];
+        
+        // Переходим на API
+        fetch(`/api/items/${itemId}/`)
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('qr-result').innerHTML = `
+                    <div class="alert alert-success">
+                        <h3>${data.name}</h3>
+                        <p>Место: ${data.location || 'Не указано'}</p>
+                        <a href="/item/${itemId}/" class="btn btn-primary">Открыть</a>
+                    </div>
+                `;
+            });
+    }
+    
+    const html5QrCode = new Html5Qrcode("qr-reader");
+    html5QrCode.start(
+        { facingMode: "environment" },  // Задняя камера
+        { fps: 10, qrbox: 250 },
+        onScanSuccess
+    );
+</script>
+{% endblock %}

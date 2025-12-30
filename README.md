@@ -48,35 +48,5 @@ python manage.py migrate
 # 6. Создайте суперпользователя
 python manage.py createsuperuser
 
-## 🎨 Скриншоты
-
-<table>
-  <tr>
-    <td align="center">
-      <img src="screenshots/home.png" alt="Главная страница" width="400"/>
-      <br><b>Главная страница</b>
-      <br>Быстрый поиск и фильтры
-    </td>
-    <td align="center">
-      <img src="screenshots/admin.png" alt="Админка Unfold" width="400"/>
-      <br><b>Админка Unfold</b>
-      <br>Управление вещами и QR-коды
-    </td>
-  </tr>
-  <tr>
-    <td align="center">
-      <img src="screenshots/item-detail.png" alt="Детали вещи" width="400"/>
-      <br><b>Детали вещи</b>
-      <br>QR-код для печати
-    </td>
-    <td align="center">
-      <img src="screenshots/api-docs.png" alt="API" width="400"/>
-      <br><b>API Документация</b>
-      <br>Swagger UI для разработчиков
-    </td>
-  </tr>
-</table>
-
-
 # 7. Запустите сервер
 python manage.py runserver 0.0.0.0:8000

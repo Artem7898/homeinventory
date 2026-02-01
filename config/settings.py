@@ -5,7 +5,7 @@ Django settings for config project.
 from pathlib import Path
 import os
 import dj_database_url
-from dotenv import load_dotenv  # Проще использовать dotenv
+from dotenv import load_dotenv
 
 # Загружаем .env файл
 load_dotenv()

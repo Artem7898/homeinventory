@@ -54,7 +54,8 @@ FROM python:3.11-slim
 # Мета информация
 LABEL maintainer="your-email@example.com"
 LABEL version="1.0"
-LABEL description="HomeInventory Django Application"
+LABEL description="HomeInventory
+Django Application"
 
 # Устанавливаем только runtime зависимости
 RUN apt-get update && apt-get install -y \

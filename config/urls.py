@@ -12,7 +12,7 @@ api = NinjaAPI(
     version="1.0.0",
     description="API для сканирования QR-кодов и управления инвентарём",
 )
-api.add_router("/items/", router)
+#api.add_router("/items/", router)
 
 def admin_search(request):
     return JsonResponse({'results': []})

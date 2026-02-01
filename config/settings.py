@@ -6,6 +6,7 @@ from pathlib import Path
 import os
 import dj_database_url
 from dotenv import load_dotenv
+import sys
 
 # Загружаем .env файл
 load_dotenv()
@@ -202,3 +203,6 @@ SILENCED_SYSTEM_CHECKS = [
     "django_ratelimit.E003",  # ← ДОБАВЬТЕ
     "django_ratelimit.W001",  # ← ДОБАВЬТЕ
 ]
+
+if 'migrate' in sys.argv or 'collectstatic' in sys.argv:
+    SILENCED_SYSTEM_CHECKS.append('urls.W001')

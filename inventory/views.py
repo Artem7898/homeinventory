@@ -78,4 +78,44 @@ def search_view(request):
 
 def scanner_view(request):
     return render(request, 'inventory/scanner.html')
-    
+
+
+# Обработчики ошибок
+def page_not_found(request, exception):
+    """Страница 404 - не найдено"""
+    return render(request, 'inventory/error.html', {
+        'error_code': '404',
+        'error_title': 'Страница не найдена',
+        'error_message': 'Извините, запрашиваемая страница не существует.',
+        'error_details': 'Проверьте правильность URL или вернитесь на главную страницу.'
+    }, status=404)
+
+
+def server_error(request):
+    """Страница 500 - внутренняя ошибка сервера"""
+    return render(request, 'inventory/error.html', {
+        'error_code': '500',
+        'error_title': 'Внутренняя ошибка сервера',
+        'error_message': 'Произошла внутренняя ошибка сервера.',
+        'error_details': 'Попробуйте обновить страницу или вернуться позже.'
+    }, status=500)
+
+
+def bad_request(request, exception):
+    """Страница 400 - неверный запрос"""
+    return render(request, 'inventory/error.html', {
+        'error_code': '400',
+        'error_title': 'Неверный запрос',
+        'error_message': 'Запрос не может быть обработан сервером.',
+        'error_details': 'Проверьте правильность введенных данных.'
+    }, status=400)
+
+
+def permission_denied(request, exception):
+    """Страница 403 - доступ запрещен"""
+    return render(request, 'inventory/error.html', {
+        'error_code': '403',
+        'error_title': 'Доступ запрещен',
+        'error_message': 'У вас нет прав для доступа к этой странице.',
+        'error_details': 'Обратитесь к администратору для получения доступа.'
+    }, status=403)

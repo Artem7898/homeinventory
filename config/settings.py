@@ -43,6 +43,7 @@ else:
             'http://localhost:8000',
             'http://127.0.0.1:8000',
             'http://0.0.0.0:8000',
+            'homeinventory-production-8d91.up.railway.app',
         ]
     else:
         ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='').split(',')

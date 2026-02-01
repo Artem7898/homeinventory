@@ -39,7 +39,7 @@ urlpatterns = [
     
     # Админка
     path('admin/search/', admin_search, name='admin_search'),
-    path('admin/', admin.site.urls)
+    path('admin/', admin.site.urls),
     
     # Основные приложения
     path('', include('inventory.urls')),

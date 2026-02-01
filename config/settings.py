@@ -17,6 +17,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
+# Настройки административной панели
+ADMIN_URL = os.environ.get('ADMIN_URL', 'admin')  # ← ДОБАВЛЕНО
+
 # Определяем, работаем ли на Railway
 IS_RAILWAY = 'RAILWAY_ENVIRONMENT' in os.environ or 'DATABASE_URL' in os.environ
 
@@ -59,7 +62,7 @@ INSTALLED_APPS = [
     
     # Внешние пакеты
     "django_extensions",
-    "django_ratelimit",
+    # "django_ratelimit",  # ← ВРЕМЕННО ЗАКОММЕНТИРУЙТЕ ДЛЯ RAILWAY
 ]
 
 MIDDLEWARE = [
@@ -157,11 +160,10 @@ UNFOLD = {
     "SITE_HEADER": "Учёт вещей",
 }
 
-# Cache - упрощаем для Railway
+# Cache - для Railway используем простой кэш
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
-        'LOCATION': 'unique-snowflake',
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',  # ← ИЗМЕНИТЕ НА DummyCache
     }
 }
 
@@ -171,7 +173,7 @@ if not DEBUG:  # Только когда DEBUG=False
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    SECURE_SSL_REDIRECT = True  # Может вызывать проблемы на Railway - комментируйте при проблемах
+    # SECURE_SSL_REDIRECT = True  # ← ЗАКОММЕНТИРУЙТЕ ДЛЯ RAILWAY (Railway сам делает SSL)
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
@@ -197,4 +199,6 @@ SILENCED_SYSTEM_CHECKS = [
     "security.W008",  # SECURE_SSL_REDIRECT
     "security.W012",  # SESSION_COOKIE_SECURE
     "security.W016",  # CSRF_COOKIE_SECURE
+    "django_ratelimit.E003",  # ← ДОБАВЬТЕ
+    "django_ratelimit.W001",  # ← ДОБАВЬТЕ
 ]

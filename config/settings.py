@@ -87,7 +87,24 @@ else:
         }
     }
 
-# 7. Static & Media
+# 7. TEMPLATES (ДОБАВЛЕН РАЗДЕЛ)
+TEMPLATES = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [BASE_DIR / 'templates'],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+            ],
+        },
+    },
+]
+
+# 8. Static & Media
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 # Упрощенный сторедж для стабильности
@@ -96,20 +113,36 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
-# 8. Internationalization
+# 9. Password validation
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
+    },
+    {
+        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
+    },
+]
+
+# 10. Internationalization
 LANGUAGE_CODE = 'ru-ru'
 TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
 USE_TZ = True
 
-# 9. Кэш (DummyCache для избежания ошибок подключения)
+# 11. Кэш (DummyCache для избежания ошибок подключения)
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
     }
 }
 
-# 10. Security (Production)
+# 12. Security (Production)
 if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
@@ -119,7 +152,7 @@ if not DEBUG:
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
-# 11. Logging
+# 13. Logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -132,7 +165,7 @@ LOGGING = {
     },
 }
 
-# 12. Подавление системных проверок
+# 14. Подавление системных проверок
 SILENCED_SYSTEM_CHECKS = [
     "security.W004", "security.W008", "security.W012", "security.W016",
     "django_ratelimit.E003", "django_ratelimit.W001"

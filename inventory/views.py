@@ -78,3 +78,4 @@ def search_view(request):
 
 def scanner_view(request):
     return render(request, 'inventory/scanner.html')
+    

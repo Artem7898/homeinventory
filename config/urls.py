@@ -5,8 +5,6 @@ from django.conf.urls.static import static
 from django.http import JsonResponse
 from ninja import NinjaAPI
 from inventory.api import router
-from inventory.decorators import secure_admin_login
-from django.contrib.auth import views as auth_views
 
 
 api = NinjaAPI(

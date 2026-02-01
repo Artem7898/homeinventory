@@ -54,8 +54,7 @@ FROM python:3.11-slim
 # Мета информация
 LABEL maintainer="your-email@example.com"
 LABEL version="1.0"
-LABEL description="HomeInventory
-Django Application"
+LABEL description="HomeInventory Django Application"
 
 # Устанавливаем только runtime зависимости
 RUN apt-get update && apt-get install -y \
@@ -98,9 +97,6 @@ USER homeinventory
 RUN python -c "import django; print(f'Django version: {django.__version__}')" && \
     python -c "import psycopg2; print(f'Psycopg2 version: {psycopg2.__version__}')" && \
     python -c "import whitenoise; print('Whitenoise installed')"
-
-# Создаем health check endpoint
-RUN echo 'from django.http import JsonResponse\nfrom django.views.decorators.http import require_GET\n@require_GET\ndef health_check(request):\n    return JsonResponse({"status": "healthy", "service": "homeinventory"})' > /app/health.py
 
 EXPOSE 8000
 

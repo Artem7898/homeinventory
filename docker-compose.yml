@@ -1,0 +1,106 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:15-alpine
+    container_name: homeinventory_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: homeinventory
+      POSTGRES_USER: homeinventory
+      POSTGRES_PASSWORD: homeinventory123
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - homeinventory_network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U homeinventory"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        - SECRET_KEY=${SECRET_KEY:-dummy_build_secret_key}
+    container_name: homeinventory_web
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      # Django основные настройки
+      - SECRET_KEY=${6QWHrkOwVmMDPaTmXEtJWIzzFgdSPP0XkaMKBlBbrs1t0CcVoKgpiVNUhGuqAaOF}
+      - DEBUG=${DEBUG:-False}
+      - ALLOWED_HOSTS=${ALLOWED_HOSTS:-localhost,127.0.0.1,0.0.0.0}
+
+      # Database (используем переменные от PostgreSQL контейнера)
+      - DATABASE_URL=postgresql://homeinventory:homeinventory123@db:5432/homeinventory
+      - DB_HOST=db
+      - DB_NAME=homeinventory
+      - DB_USER=homeinventory
+      - DB_PASSWORD=homeinventory123
+      - DB_PORT=5432
+
+      # Настройки приложения
+      - PORT=8000
+      - CSRF_TRUSTED_ORIGINS=http://localhost:8000,http://127.0.0.1:8000
+
+      # Email (опционально)
+      - EMAIL_BACKEND=${EMAIL_BACKEND:-django.core.mail.backends.console.EmailBackend}
+      - DEFAULT_FROM_EMAIL=${DEFAULT_FROM_EMAIL:-noreply@homeinventory.local}
+
+      # Статика
+      - STATIC_URL=/static/
+      - STATIC_ROOT=/app/static
+
+      # Медиа
+      - MEDIA_URL=/media/
+      - MEDIA_ROOT=/app/media
+    volumes:
+      # Монтируем статику и медиа для разработки
+      - ./media:/app/media
+      - ./static:/app/static
+      - ./logs:/app/logs
+
+      # Для разработки можно монтировать код
+      # - ./:/app
+    ports:
+      - "8000:8000"
+    networks:
+      - homeinventory_network
+    command: >
+      sh -c "
+        echo 'Waiting for database...' &&
+        sleep 5 &&
+        python manage.py migrate --noinput &&
+        python manage.py collectstatic --noinput &&
+        gunicorn --bind 0.0.0.0:8000 
+          --workers 3 
+          --worker-class sync 
+          --access-logfile - 
+          --error-logfile - 
+          --timeout 120 
+          --max-requests 1000 
+          --max-requests-jitter 50 
+          config.wsgi:application
+      "
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  postgres_data:
+
+networks:
+  homeinventory_network:
+    driver: bridge

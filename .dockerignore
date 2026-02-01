@@ -1,0 +1,173 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+env.bak/
+venv.bak/
+*.pyc
+*.pyo
+*.pyd
+*.egg-info/
+*.egg
+dist/
+build/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+*.cover
+.hypothesis/
+.pytest_cache/
+*.mo
+*.pot
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+instance/
+.webassets-cache
+.scrapy
+
+# Docker
+Dockerfile
+docker-compose.yml
+docker-compose.*.yml
+.dockerignore
+.gitlab-ci.yml
+.git/
+.gitignore
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+*.iml
+*.ipr
+*.iws
+.classpath
+.settings/
+.cache/
+.nova/
+.directory
+
+# Операционные системы
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+# Тестовые данные
+tests/
+test/
+test_*.py
+*.test.py
+fixtures/
+test.db
+
+# Логи
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Статика и медиа
+static/
+media/
+collectstatic/
+
+# Конфигурационные файлы с секретами
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.env
+secrets.yml
+config/secrets.yml
+config/settings/local.py
+
+# Документация
+docs/_build/
+site/
+
+# Миграции (можно оставить, но часто хотят заново генерировать)
+# */migrations/*.py
+# !*/migrations/__init__.py
+
+# Временные файлы
+tmp/
+temp/
+*.tmp
+*.temp
+*_temp
+*_tmp
+
+# Резервные копии
+*.bak
+*.backup
+*.old
+*.orig
+*.save
+*~
+
+# Архивы
+*.zip
+*.tar
+*.tar.gz
+*.tgz
+*.rar
+*.7z
+*.bz2
+*.xz
+
+# Базы данных (кроме PostgreSQL)
+*.db
+*.sqlite
+*.sqlite3
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+
+# PyTest
+.pytest_cache/
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Coverage
+.coverage
+.coverage.*
+htmlcov/
+
+# Bandit
+.bandit
+
+# Mypy
+.mypy_cache/
+
+# Ruff
+.ruff_cache/

@@ -63,10 +63,13 @@ INSTALLED_APPS = [
     "locations.apps.LocationsConfig",
     "categories.apps.CategoriesConfig",
     # Внешние пакеты
-    "debug_toolbar",
     "django_extensions",
     "django_ratelimit",
 ]
+
+# Только для локальной разработки добавляем debug_toolbar
+if DEBUG and not IS_RAILWAY:
+    INSTALLED_APPS.append("debug_toolbar")
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -186,12 +189,12 @@ UNFOLD = {
     "SITE_URL": "/",
 }
 
-# Cache (используем файловый кеш на Railway)
+# Cache - используем DummyCache для Railway, т.к. ratelimit требует atomic increment
 if IS_RAILWAY:
+    # На Railway нет подходящего кеша, используем DummyCache
     CACHES = {
         'default': {
-            'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-            'LOCATION': '/tmp/django_cache',
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
         }
     }
 else:
@@ -201,6 +204,15 @@ else:
             'LOCATION': config('CACHE_LOCATION', default='my_cache_table'),
         }
     }
+
+# Rate limiting - отключаем проверки для DummyCache
+if IS_RAILWAY:
+    RATELIMIT_USE_CACHE = 'default'
+    SILENCED_SYSTEM_CHECKS = ["django_ratelimit.E003", "django_ratelimit.W001", "debug_toolbar.W001"]
+else:
+    RATELIMIT_LOGIN = config('RATELIMIT_LOGIN', default='5/m')
+    RATELIMIT_SKIP_CHECK = config('RATELIMIT_SKIP_CHECK', default=True, cast=bool)
+    SILENCED_SYSTEM_CHECKS = ["django_ratelimit.E003", "django_ratelimit.W001"]
 
 # Security settings for production
 if not DEBUG or IS_RAILWAY:

@@ -1,53 +1,32 @@
-"""
-Django settings for config project.
-"""
-
-from pathlib import Path
 import os
+import sys
+from pathlib import Path
 import dj_database_url
 from dotenv import load_dotenv
-import sys
 
-# Загружаем .env файл
+# 1. Загружаем переменные окружения
 load_dotenv()
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Базовые настройки
+# 2. Безопасность
 SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key-change-in-production')
 DEBUG = os.environ.get('DEBUG', 'False').lower() == 'true'
 
-# Настройки административной панели
-ADMIN_URL = os.environ.get('ADMIN_URL', 'admin')  # ← ДОБАВЛЕНО
+# 3. Хосты и домены
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', '0.0.0.0', '.railway.app']
+allowed_hosts_env = os.environ.get('ALLOWED_HOSTS', '')
+if allowed_hosts_env:
+    ALLOWED_HOSTS.extend(host.strip() for host in allowed_hosts_env.split(',') if host.strip())
 
-# Определяем, работаем ли на Railway
-IS_RAILWAY = 'RAILWAY_ENVIRONMENT' in os.environ or 'DATABASE_URL' in os.environ
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.railway.app',
+    'https://homeinventory-production-8d91.up.railway.app'
+]
 
-# Настройки ALLOWED_HOSTS
-ALLOWED_HOSTS = []
-if DEBUG:
-    ALLOWED_HOSTS.extend(['localhost', '127.0.0.1', '0.0.0.0'])
-else:
-    # Для production получаем hosts из переменной окружения
-    allowed_hosts = os.environ.get('ALLOWED_HOSTS', '')
-    if allowed_hosts:
-        ALLOWED_HOSTS.extend(host.strip() for host in allowed_hosts.split(',') if host.strip())
-    
-    # Добавляем Railway домены
-    ALLOWED_HOSTS.extend(['.railway.app', 'homeinventory-production-8d91.up.railway.app'])
-
-# CSRF и CORS настройки
-CSRF_TRUSTED_ORIGINS = []
-if not DEBUG:
-    CSRF_TRUSTED_ORIGINS.extend([
-        'https://*.railway.app',
-        'https://homeinventory-production-8d91.up.railway.app',
-    ])
-
-# Application definition
+# 4. Application definition
 INSTALLED_APPS = [
-    "unfold",
+    "unfold",  # Должен быть выше admin
     "unfold.contrib.filters",
     "django.contrib.admin",
     "django.contrib.auth",
@@ -56,19 +35,17 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     
-    # Собственные приложения
+    # Твои приложения
     "inventory.apps.InventoryConfig",
     "locations.apps.LocationsConfig",
     "categories.apps.CategoriesConfig",
     
-    # Внешние пакеты
     "django_extensions",
-    # "django_ratelimit",  # ← ВРЕМЕННО ЗАКОММЕНТИРУЙТЕ ДЛЯ RAILWAY
 ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",  # Должен быть сразу после SecurityMiddleware
+    "whitenoise.middleware.WhiteNoiseMiddleware",  # Сразу после Security
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
@@ -77,27 +54,31 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-# Добавляем debug_toolbar только при локальной разработке
+# 5. Debug Toolbar (только локально)
+IS_RAILWAY = 'RAILWAY_ENVIRONMENT' in os.environ or 'DATABASE_URL' in os.environ
 if DEBUG and not IS_RAILWAY:
-    INSTALLED_APPS.append("debug_toolbar")
-    MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
-    INTERNAL_IPS = ["127.0.0.1"]
+    try:
+        import debug_toolbar
+        INSTALLED_APPS.append("debug_toolbar")
+        MIDDLEWARE.insert(0, "debug_toolbar.middleware.DebugToolbarMiddleware")
+        INTERNAL_IPS = ["127.0.0.1"]
+    except ImportError:
+        pass
 
 ROOT_URLCONF = "config.urls"
 WSGI_APPLICATION = "config.wsgi.application"
 
-# Database
+# 6. Database (Исправлено для устранения 499)
 DATABASE_URL = os.environ.get('DATABASE_URL')
 if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.config(
             default=DATABASE_URL,
-            conn_max_age=0,  # Убираем долгоживущие соединения
-            conn_health_checks=True, # Добавляем проверку "живости"
-            ssl_require=False, # Railway часто не требует SSL внутри своей сети
+            conn_max_age=0,          # Устраняет зависшие сессии на Railway
+            conn_health_checks=True, # Проверяет соединение перед запросом
+            ssl_require=False        # Railway проксирует SSL сам
         )
     }
-
 else:
     DATABASES = {
         'default': {
@@ -106,89 +87,44 @@ else:
         }
     }
 
-# Templates
-TEMPLATES = [
-    {
-        "BACKEND": "django.template.backends.django.DjangoTemplates",
-        "DIRS": [BASE_DIR / 'templates'],
-        "APP_DIRS": True,
-        "OPTIONS": {
-            "context_processors": [
-                "django.template.context_processors.debug",
-                "django.template.context_processors.request",
-                "django.contrib.auth.context_processors.auth",
-                "django.contrib.messages.context_processors.messages",
-            ],
-        },
-    },
-]
+# 7. Static & Media
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+# Упрощенный сторедж для стабильности
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
 
-# Password validation
-AUTH_PASSWORD_VALIDATORS = [
-    {
-        "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.MinimumLengthValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.CommonPasswordValidator",
-    },
-    {
-        "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
-    },
-]
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'
 
-# Internationalization
+# 8. Internationalization
 LANGUAGE_CODE = 'ru-ru'
 TIME_ZONE = 'Europe/Moscow'
 USE_I18N = True
 USE_TZ = True
 
-# Static files
-STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
-
-# Media files
-MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
-
-# Default primary key
-DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# Unfold admin
-UNFOLD = {
-    "SITE_TITLE": "Домашний инвентарь",
-    "SITE_HEADER": "Учёт вещей",
-}
-
-# Cache - для Railway используем простой кэш
+# 9. Кэш (DummyCache для избежания ошибок подключения)
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',  # ← ИЗМЕНИТЕ НА DummyCache
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
     }
 }
 
-# Security settings - ВАЖНО: только для production
-if not DEBUG:  # Только когда DEBUG=False
-    SECURE_BROWSER_XSS_FILTER = True
-    SECURE_CONTENT_TYPE_NOSNIFF = True
+# 10. Security (Production)
+if not DEBUG:
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
-    # SECURE_SSL_REDIRECT = True  # ← ЗАКОММЕНТИРУЙТЕ ДЛЯ RAILWAY (Railway сам делает SSL)
+    SECURE_BROWSER_XSS_FILTER = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_HSTS_SECONDS = 31536000
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_PRELOAD = True
 
-# Logging
+# 11. Logging
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
     'handlers': {
-        'console': {
-            'class': 'logging.StreamHandler',
-        },
+        'console': {'class': 'logging.StreamHandler'},
     },
     'root': {
         'handlers': ['console'],
@@ -196,15 +132,16 @@ LOGGING = {
     },
 }
 
-# Подавляем предупреждения
+# 12. Подавление системных проверок
 SILENCED_SYSTEM_CHECKS = [
-    "security.W004",  # SECURE_HSTS_SECONDS
-    "security.W008",  # SECURE_SSL_REDIRECT
-    "security.W012",  # SESSION_COOKIE_SECURE
-    "security.W016",  # CSRF_COOKIE_SECURE
-    "django_ratelimit.E003",  # ← ДОБАВЬТЕ
-    "django_ratelimit.W001",  # ← ДОБАВЬТЕ
+    "security.W004", "security.W008", "security.W012", "security.W016",
+    "django_ratelimit.E003", "django_ratelimit.W001"
 ]
 
-if 'migrate' in sys.argv or 'collectstatic' in sys.argv:
-    SILENCED_SYSTEM_CHECKS.append('urls.W001')
+DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+# Unfold UI
+UNFOLD = {
+    "SITE_TITLE": "Домашний инвентарь",
+    "SITE_HEADER": "Учёт вещей",
+}

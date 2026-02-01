@@ -92,10 +92,12 @@ if DATABASE_URL:
     DATABASES = {
         'default': dj_database_url.config(
             default=DATABASE_URL,
-            conn_max_age=600,
-            ssl_require=not DEBUG,  # SSL только в production
+            conn_max_age=0,  # Убираем долгоживущие соединения
+            conn_health_checks=True, # Добавляем проверку "живости"
+            ssl_require=False, # Railway часто не требует SSL внутри своей сети
         )
     }
+
 else:
     DATABASES = {
         'default': {

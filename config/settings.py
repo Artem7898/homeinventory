@@ -5,7 +5,7 @@ Django settings for config project.
 from pathlib import Path
 from decouple import config
 import os
-import dj_database_url  # ← Добавьте эту строку
+import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -189,30 +189,23 @@ UNFOLD = {
     "SITE_URL": "/",
 }
 
-# Cache - используем DummyCache для Railway, т.к. ratelimit требует atomic increment
-if IS_RAILWAY:
-    # На Railway нет подходящего кеша, используем DummyCache
-    CACHES = {
-        'default': {
-            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-        }
+# Cache - используем DatabaseCache с созданием таблицы
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'my_cache_table',
     }
-else:
-    CACHES = {
-        'default': {
-            'BACKEND': config('CACHE_BACKEND', default='django.core.cache.backends.db.DatabaseCache'),
-            'LOCATION': config('CACHE_LOCATION', default='my_cache_table'),
-        }
-    }
+}
 
-# Rate limiting - отключаем проверки для DummyCache
-if IS_RAILWAY:
-    RATELIMIT_USE_CACHE = 'default'
-    SILENCED_SYSTEM_CHECKS = ["django_ratelimit.E003", "django_ratelimit.W001", "debug_toolbar.W001"]
-else:
-    RATELIMIT_LOGIN = config('RATELIMIT_LOGIN', default='5/m')
-    RATELIMIT_SKIP_CHECK = config('RATELIMIT_SKIP_CHECK', default=True, cast=bool)
-    SILENCED_SYSTEM_CHECKS = ["django_ratelimit.E003", "django_ratelimit.W001"]
+# Rate limiting - отключаем проверки для DatabaseCache
+RATELIMIT_SKIP_CHECK = True
+
+# Подавляем все системные проверки
+SILENCED_SYSTEM_CHECKS = [
+    "django_ratelimit.E003", 
+    "django_ratelimit.W001",
+    "debug_toolbar.W001",
+]
 
 # Security settings for production
 if not DEBUG or IS_RAILWAY:

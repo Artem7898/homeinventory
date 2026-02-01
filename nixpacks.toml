@@ -1,11 +1,12 @@
 [phases.setup]
 cmds = [
   "apt-get update",
-  "apt-get install -y gcc libpq-dev libjpeg-dev zlib1g-dev"
+  "apt-get install -y gcc libpq-dev libjpeg-dev zlib1g-dev python3-pip python3-venv"
 ]
 
 [phases.install]
 cmds = [
+  "python3 -m pip install --upgrade pip",
   "pip install -r requirements.txt"
 ]
 

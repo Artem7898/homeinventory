@@ -48,5 +48,7 @@ python manage.py migrate
 # 6. Создайте суперпользователя
 python manage.py createsuperuser
 
+# 7. Результать можно увидеть по ссылке https://homeinventory-production-8bdf.up.railway.app/
+
 # 7. Запустите сервер
 python manage.py runserver 0.0.0.0:8000

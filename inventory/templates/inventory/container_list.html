@@ -1,0 +1,6 @@
+{% extends 'inventory/base.html' %}
+{% block title %}Контейнеры — HomeInventory{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">Коробки, ящики, наборы</p><h1>Контейнеры</h1><p class="muted">Объединяйте вещи и перемещайте их вместе.</p></div>{% if can_edit %}<a class="button" href="{% url 'inventory:container-create' %}">Добавить контейнер</a>{% endif %}</div>
+{% if containers %}<div class="card-grid">{% for container in containers %}<article class="panel container-card"><span class="container-mark" aria-hidden="true">▣</span><h2><a href="{% url 'inventory:container-detail' container.pk %}">{{ container.name }}</a></h2><p class="muted">{{ container.location|default:'Место не выбрано' }}</p>{% if container.description %}<p>{{ container.description|truncatechars:160 }}</p>{% endif %}</article>{% endfor %}</div>{% else %}<section class="empty-state"><h2>Одна этикетка — всё содержимое</h2><p>Создайте контейнер для коробки с сезонными вещами, ящика инструментов или набора для общего пользования.</p>{% if can_edit %}<a class="button" href="{% url 'inventory:container-create' %}">Добавить контейнер</a>{% endif %}</section>{% endif %}
+{% endblock %}

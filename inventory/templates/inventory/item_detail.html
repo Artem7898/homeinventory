@@ -1,54 +1,22 @@
 {% extends 'inventory/base.html' %}
-
-{% block title %}{{ item.name }} - Инвентарь{% endblock %}
-
+{% block title %}{{ item.name }} — HomeInventory{% endblock %}
 {% block content %}
-<div class="row">
-    <div class="col-md-6">
-        <div class="card">
-            {% if item.photo %}
-            <img src="{{ item.photo.url }}" class="card-img-top" alt="{{ item.name }}">
-            {% else %}
-            <img src="https://via.placeholder.com/500x400" class="card-img-top" alt="no image">
-            {% endif %}
-            <div class="card-body">
-                <h2>{{ item.name }}</h2>
-                <p class="lead">{{ item.description|default:'Описание отсутствует' }}</p>
-                
-                <dl class="row">
-                    <dt class="col-sm-4">Категория</dt>
-                    <dd class="col-sm-8">{{ item.category|default:'—' }}</dd>
-                    
-                    <dt class="col-sm-4">Место</dt>
-                    <dd class="col-sm-8">{{ item.location|default:'—' }}</dd>
-                    
-                    <dt class="col-sm-4">Дата покупки</dt>
-                    <dd class="col-sm-8">{{ item.purchase_date|default:'—' }}</dd>
-                    
-                    <dt class="col-sm-4">Цена</dt>
-                    <dd class="col-sm-8">{{ item.price|default:'—' }} ₽</dd>
-                </dl>
-                
-                <a href="{% url 'inventory:item-list' %}" class="btn btn-secondary">← Назад</a>
-            </div>
-        </div>
-    </div>
-    
-    <div class="col-md-6 text-center">
-        <h4>QR-код для сканирования</h4>
-        {% if item.qr_code %}
-        <img src="{{ item.qr_code.url }}" alt="QR Code" class="qr-code">
-        <p class="text-muted">Сканируйте телефоном</p>
-        {% else %}
-        <div class="alert alert-warning">QR-код еще не сгенерирован</div>
-        {% endif %}
-        
-        <div class="mt-4">
-            <h5>Для печати</h5>
-            <a href="{{ item.qr_code.url }}" download class="btn btn-outline-primary">
-                Скачать QR-код
-            </a>
-        </div>
-    </div>
+<a class="back-link" href="{% url 'inventory:item-list' %}">← Каталог вещей</a>
+<div class="page-heading"><div><p class="eyebrow">Карточка вещи</p><h1>{{ item.name }}</h1></div>{% if can_edit %}<a class="button button-secondary" href="{% url 'inventory:item-edit' item.pk %}">Изменить</a>{% endif %}</div>
+<div class="detail-grid">
+    <section class="panel">
+        {% if item.photo %}<img class="detail-photo" src="{{ item.photo.url }}" alt="{{ item.name }}" width="640" height="480">{% endif %}
+        {% if item.description %}<p class="description">{{ item.description|linebreaksbr }}</p>{% endif %}
+        <dl class="metadata"><dt>Место</dt><dd>{% if item.container %}{{ item.container.location|default:'Не выбрано' }} → <a href="{% url 'inventory:container-detail' item.container.pk %}">{{ item.container.name }}</a>{% else %}{{ item.location|default:'Не выбрано' }}{% endif %}</dd><dt>Категория</dt><dd>{{ item.category|default:'Без категории' }}</dd><dt>Дата покупки</dt><dd>{{ item.purchase_date|default:'Не указана' }}</dd><dt>Стоимость</dt><dd>{% if item.price is not None %}{{ item.price }} ₽{% else %}Не указана{% endif %}</dd></dl>
+    </section>
+    <section class="panel qr-panel"><h2>Этикетка вещи</h2><img class="qr-image" src="{% url 'inventory:item-qr' item.pk %}" alt="QR-код вещи {{ item.name }}" width="220" height="220"><p class="label-code">{{ item.label_id|stringformat:'s'|slice:':8' }}</p><p class="muted">Код открывает эту карточку. Доступ остаётся только у участников пространства.</p><a href="{% url 'inventory:item-qr' item.pk %}" download="item-{{ item.pk }}.png" class="button button-secondary">Скачать QR</a><a href="{% url 'inventory:labels' %}" class="text-link">Печатные этикетки</a></section>
 </div>
+<section class="panel section-panel"><h2>Выдача и возврат</h2>
+{% if active_loan %}<p>Сейчас у <strong>{{ active_loan.borrower.get_username }}</strong>{% if active_loan.due_date %}. Вернуть до {{ active_loan.due_date }}{% endif %}.</p>{% if can_edit %}<form method="post" action="{% url 'inventory:loan-return' active_loan.pk %}">{% csrf_token %}<button type="submit" class="button">Отметить возврат</button></form>{% endif %}
+{% else %}<p class="muted">Вещь не выдана.</p>{% if can_edit and loan_form %}<form method="post" action="{% url 'inventory:loan-checkout' item.pk %}" class="compact-form">{% csrf_token %}{% include 'inventory/includes/fields.html' with form=loan_form %}<button type="submit" class="button">Выдать участнику</button></form>{% endif %}{% endif %}
+</section>
+{% if can_manage and listing_form %}<section class="panel section-panel"><h2>Поделиться описанием</h2><p class="muted">Опубликуются только указанные ниже название и описание. Фото, стоимость, место хранения и личные заметки останутся закрытыми. Не добавляйте в публичное описание адреса и личные данные.</p><form method="post" action="{% url 'inventory:listing-edit' item.pk %}" class="compact-form">{% csrf_token %}{% include 'inventory/includes/fields.html' with form=listing_form %}<button class="button button-secondary" type="submit">Сохранить публикацию</button></form>{% if listing_form.instance.pk and listing_form.instance.active %}<p><a href="{% url 'inventory:public-listing' listing_form.instance.token %}">Открыть публичное описание</a></p>{% endif %}</section>{% endif %}
+{% if can_edit %}<details class="danger-zone"><summary>Удалить вещь</summary><p>Карточка будет удалена из каталога. Убедитесь, что вещь не нужна в учёте.</p><form method="post" action="{% url 'inventory:item-delete' item.pk %}" data-confirm="Удалить эту вещь из каталога?">{% csrf_token %}<button type="submit" class="button button-danger">Удалить вещь</button></form></details>{% endif %}
+
+{% if movements %}<section class="panel section-panel"><h2>История перемещений</h2><ol class="history-list">{% for movement in movements %}<li><p><strong>{{ movement.from_location|default:'Место не было указано' }}</strong> → <strong>{{ movement.to_location|default:'Место не указано' }}</strong></p><p class="muted">{{ movement.created_at|date:'d.m.Y H:i' }} · {{ movement.actor.get_username|default:'Участник' }}</p></li>{% endfor %}</ol></section>{% endif %}
 {% endblock %}

@@ -1,0 +1,5 @@
+{% extends 'inventory/base.html' %}
+{% block title %}Новое пространство — HomeInventory{% endblock %}
+{% block content %}
+<div class="page-heading"><div><a class="back-link" href="{% url 'workspaces:workspace-list' %}">← Пространства</a><h1>Создать пространство</h1><p class="muted">Оно будет доступно только вам, пока вы не добавите других участников.</p></div></div><form method="post" class="panel form-panel">{% csrf_token %}{% include 'inventory/includes/fields.html' %}<div class="form-actions"><button class="button" type="submit">Создать пространство</button><a class="button button-quiet" href="{% url 'workspaces:workspace-list' %}">Отмена</a></div></form>
+{% endblock %}

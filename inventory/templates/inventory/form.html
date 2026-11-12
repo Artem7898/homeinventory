@@ -1,0 +1,9 @@
+{% extends 'inventory/base.html' %}
+{% block title %}{{ title }} — HomeInventory{% endblock %}
+{% block content %}
+<div class="page-heading"><div><a class="back-link" href="{{ back_url|default:'/' }}">← Назад</a><h1>{{ title }}</h1></div></div>
+<form method="post" enctype="multipart/form-data" class="panel form-panel">{% csrf_token %}
+    {% include 'inventory/includes/fields.html' %}
+    <div class="form-actions"><button type="submit" class="button">Сохранить</button><a class="button button-quiet" href="{{ back_url|default:'/' }}">Отмена</a></div>
+</form>
+{% endblock %}

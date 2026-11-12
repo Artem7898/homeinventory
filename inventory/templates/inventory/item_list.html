@@ -1,60 +1,34 @@
 {% extends 'inventory/base.html' %}
-
+{% block title %}Вещи — HomeInventory{% endblock %}
 {% block content %}
-<div class="row mb-4">
-    <div class="col-md-8">
-        <form method="get" class="d-flex">
-            <input type="text" name="q" class="form-control me-2" 
-                   placeholder="🔍 Найди зарядник, паспорт..." 
-                   value="{{ query|default:'' }}">
-            <button class="btn btn-primary" type="submit">Найти</button>
-        </form>
-    </div>
+<div class="page-heading">
+    <div><p class="eyebrow">Всё на своём месте</p><h1>Ваши вещи</h1><p class="muted">Найдите нужное и посмотрите, где оно хранится.</p></div>
+    {% if can_edit %}<a class="button" href="{% url 'inventory:item-create' %}">Добавить вещь</a>{% endif %}
 </div>
-
-<div class="row mb-4">
-    <div class="col-md-6">
-        <h5>Категории</h5>
-        <a href="?{% if query %}q={{ query }}&{% endif %}" class="badge bg-secondary me-1">Все</a>
-        {% for cat in categories %}
-        <a href="?category={{ cat.id }}{% if query %}&q={{ query }}{% endif %}" 
-           class="badge bg-info me-1">{{ cat.name }}</a>
-        {% endfor %}
-    </div>
-    <div class="col-md-6">
-        <h5>Комнаты</h5>
-        {% for loc in locations %}
-        <a href="?location={{ loc.id }}{% if query %}&q={{ query }}{% endif %}" 
-           class="badge bg-warning me-1">{{ loc.name }}</a>
-        {% endfor %}
-    </div>
-</div>
-
-<div class="row">
-    {% for item in items %}
-    <div class="col-md-4 mb-3">
-        <div class="card item-card">
-            {% if item.photo %}
-            <img src="{{ item.photo.url }}" class="card-img-top" alt="{{ item.name }}">
-            {% else %}
-            <img src="https://via.placeholder.com/300x200" class="card-img-top" alt="no image">
-            {% endif %}
-            <div class="card-body">
-                <h5 class="card-title">{{ item.name }}</h5>
-                <p class="card-text text-muted">
-                    📍 {{ item.location|default:'Не указано' }}<br>
-                    🏷️ {{ item.category|default:'Без категории' }}
-                </p>
-                <a href="{% url 'inventory:item-detail' item.pk %}" class="btn btn-sm btn-primary">
-                    Подробнее →
-                </a>
-            </div>
-        </div>
-    </div>
-    {% empty %}
-    <div class="col-12">
-        <div class="alert alert-info">Ничего не найдено. Добавьте первую вещь через <a href="/admin/">админку</a>!</div>
-    </div>
-    {% endfor %}
-</div>
+{% if workspace %}
+<form method="get" class="panel filters" role="search" aria-label="Поиск вещей">
+    {% if filter_form %}{% include 'inventory/includes/fields.html' with form=filter_form %}{% else %}
+    <div class="field search-field"><label for="inventory-search">Что найти?</label><input id="inventory-search" name="q" type="search" value="{{ query|default:'' }}" placeholder="Например, паспорт или дрель" maxlength="200"></div>
+    <div class="field"><label for="filter-category">Категория</label><select id="filter-category" name="category"><option value="">Все категории</option>{% for category in categories %}<option value="{{ category.pk }}"{% if request.GET.category == category.pk|stringformat:'s' %} selected{% endif %}>{{ category.name }}</option>{% endfor %}</select></div>
+    <div class="field"><label for="filter-location">Место</label><select id="filter-location" name="location"><option value="">Все места</option>{% for location in locations %}<option value="{{ location.pk }}"{% if request.GET.location == location.pk|stringformat:'s' %} selected{% endif %}>{{ location.name }}</option>{% endfor %}</select></div>
+    {% endif %}
+    <div class="filter-actions"><button class="button" type="submit">Найти</button><a class="button button-quiet" href="{% url 'inventory:item-list' %}">Сбросить</a></div>
+</form>
+<div class="toolbar" aria-label="Действия с каталогом"><a href="{% url 'inventory:labels' %}">Печатные этикетки</a><a href="{% url 'inventory:export-csv' %}">Скачать CSV</a>{% if can_manage %}<a href="{% url 'archives:export' workspace.pk %}">Полный архив</a><a href="{% url 'inventory:location-create' %}">Добавить место</a><a href="{% url 'inventory:category-create' %}">Добавить категорию</a>{% endif %}</div>
+{% if items %}
+<p class="results-count muted">Найдено: {% if page_obj %}{{ page_obj.paginator.count }}{% else %}{{ items|length }}{% endif %}</p>
+<div class="card-grid">{% for item in items %}{% include 'inventory/includes/item_card.html' %}{% endfor %}</div>
+{% if page_obj.has_other_pages %}
+<nav class="pagination" aria-label="Страницы каталога">
+    {% if page_obj.has_previous %}<a class="button button-secondary" href="{% querystring page=page_obj.previous_page_number %}">Назад</a>{% endif %}
+    <span>Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}<a class="button button-secondary" href="{% querystring page=page_obj.next_page_number %}">Далее</a>{% endif %}
+</nav>
+{% endif %}
+{% else %}
+<section class="empty-state"><span class="empty-mark" aria-hidden="true">▦</span><h2>{% if query or request.GET %}Ничего не найдено{% else %}Порядок начинается с первой вещи{% endif %}</h2><p>{% if query or request.GET %}Попробуйте другое название или сбросьте фильтры.{% else %}Добавьте название, выберите место и при желании прикрепите фото.{% endif %}</p>{% if can_edit %}<a class="button" href="{% url 'inventory:item-create' %}">Добавить вещь</a>{% endif %}</section>
+{% endif %}
+{% else %}
+<section class="empty-state"><h2>Создайте своё пространство</h2><p>Дом, мастерская или группа — отдельный каталог с доступом только для участников.</p><a class="button" href="{% url 'workspaces:workspace-create' %}">Создать пространство</a></section>
+{% endif %}
 {% endblock %}

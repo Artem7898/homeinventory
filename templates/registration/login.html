@@ -1,0 +1,5 @@
+{% extends 'inventory/base.html' %}
+{% block title %}Войти — HomeInventory{% endblock %}
+{% block content %}
+<section class="login-layout"><div class="login-intro"><p class="eyebrow">Вещи на своём месте</p><h1>Ваш каталог. Ваш круг доступа.</h1><p>Находите вещи дома, в мастерской или в группе. Данные видны только участникам ваших пространств.</p></div><div class="panel login-panel"><h2>Войти</h2>{% if next and user.is_authenticated %}<p class="notice">У этого аккаунта нет доступа к запрошенной странице.</p>{% endif %}<form method="post">{% csrf_token %}{% include 'inventory/includes/fields.html' %}{% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}<button class="button full-width" type="submit">Войти</button></form><p class="field-help">Если у вас ещё нет аккаунта, обратитесь к администратору вашего HomeInventory.</p></div></section>
+{% endblock %}

@@ -1,0 +1,15 @@
+{% extends 'inventory/base.html' %}
+{% block title %}{{ container.name }} — HomeInventory{% endblock %}
+{% block content %}
+<a class="back-link" href="{% url 'inventory:container-list' %}">← Контейнеры</a>
+<div class="page-heading"><div><p class="eyebrow">Контейнер</p><h1>{{ container.name }}</h1><p class="muted">{{ container.location|default:'Место не выбрано' }}</p></div>{% if can_edit %}<a class="button button-secondary" href="{% url 'inventory:container-edit' container.pk %}">Изменить</a>{% endif %}</div>
+{% if container.description %}<p class="description">{{ container.description|linebreaksbr }}</p>{% endif %}
+<div class="detail-grid">
+    <section class="panel"><h2>Этикетка контейнера</h2><img class="qr-image" src="{% url 'inventory:container-qr' container.pk %}" alt="QR-код контейнера {{ container.name }}" width="220" height="220"><p class="label-code">{{ container.label_id|stringformat:'s'|slice:':8' }}</p><p class="muted">Сканирование открывает содержимое после входа.</p><a href="{% url 'inventory:container-qr' container.pk %}" download="container-{{ container.pk }}.png" class="button button-secondary">Скачать QR</a></section>
+    {% if can_edit and move_form %}<section class="panel"><h2>Переместить контейнер</h2><p class="muted">Место изменится для всех вещей внутри.</p><form method="post" action="{% url 'inventory:container-move' container.pk %}">{% csrf_token %}{% include 'inventory/includes/fields.html' with form=move_form %}<button class="button" type="submit">Переместить</button></form></section>{% endif %}
+</div>
+<div class="section-heading"><h2>Внутри контейнера</h2>{% if can_edit %}<a href="{% url 'inventory:item-create' %}?container={{ container.pk }}">Добавить вещь</a>{% endif %}</div>
+{% if items %}<div class="card-grid">{% for item in items %}{% include 'inventory/includes/item_card.html' %}{% endfor %}</div>{% else %}<p class="notice">Пока здесь нет вещей. При добавлении вещи выберите этот контейнер.</p>{% endif %}
+
+{% if movements %}<section class="panel section-panel"><h2>История перемещений</h2><ol class="history-list">{% for movement in movements %}<li><p><strong>{{ movement.from_location|default:'Место не было указано' }}</strong> → <strong>{{ movement.to_location|default:'Место не указано' }}</strong></p><p class="muted">{{ movement.created_at|date:'d.m.Y H:i' }} · {{ movement.actor.get_username|default:'Участник' }}</p></li>{% endfor %}</ol></section>{% endif %}
+{% endblock %}

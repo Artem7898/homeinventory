@@ -1,0 +1,6 @@
+{% extends 'inventory/base.html' %}
+{% block title %}Пространства — HomeInventory{% endblock %}
+{% block content %}
+<div class="page-heading"><div><p class="eyebrow">Дом, мастерская, группа</p><h1>Ваши пространства</h1><p class="muted">Каждое пространство — отдельный каталог со своим кругом участников.</p></div><a class="button" href="{% url 'workspaces:workspace-create' %}">Создать пространство</a></div>
+{% if workspaces %}<div class="card-grid">{% for space in workspaces %}<article class="panel"><p class="eyebrow">{{ space.get_kind_display }}</p><h2>{{ space.name }}</h2><div class="form-actions"><form method="post" action="{% url 'workspaces:workspace-select' space.pk %}">{% csrf_token %}<button type="submit" class="button">Открыть</button></form></div></article>{% endfor %}</div>{% else %}<section class="empty-state"><h2>Начните с одного пространства</h2><p>Назовите его, например, «Дом», «Мастерская» или «Наши инструменты». Затем добавьте вещи и пригласите участников.</p><a class="button" href="{% url 'workspaces:workspace-create' %}">Создать пространство</a></section>{% endif %}
+{% endblock %}

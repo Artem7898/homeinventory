@@ -1,0 +1,11 @@
+# Direct runtime dependencies. requirements.txt is the complete hashed lock.
+Django==5.2.19
+gunicorn==26.2.0
+psycopg2==2.9.13
+whitenoise==6.12.0
+dj-database-url==3.1.2
+python-dotenv==1.2.4
+django-unfold==0.110.1
+Pillow==13.0.0
+qrcode==8.2
+django-axes==9.0.0

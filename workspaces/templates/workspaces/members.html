@@ -1,0 +1,7 @@
+{% extends 'inventory/base.html' %}
+{% block title %}Участники — {{ workspace.name }} — HomeInventory{% endblock %}
+{% block content %}
+<div class="page-heading"><div><a class="back-link" href="{% url 'workspaces:workspace-list' %}">← Пространства</a><h1>Участники и доступ</h1><p class="muted">Владелец управляет доступом. Редактор ведёт каталог и выдачу. Читатель просматривает вещи.</p></div></div>
+<div class="panel"><ul class="member-list">{% for membership in members %}<li><div><strong>{{ membership.user.get_username }}</strong><p class="muted">{{ membership.get_role_display }}</p></div>{% if can_manage and membership.user_id != user.pk %}<form method="post" action="{% url 'workspaces:member-remove' workspace.pk membership.pk %}" data-confirm="Отозвать доступ этого участника?">{% csrf_token %}<button class="button button-quiet danger-text" type="submit">Отозвать доступ</button></form>{% endif %}</li>{% empty %}<li>Участники не назначены.</li>{% endfor %}</ul></div>
+{% if can_manage %}<section class="panel section-panel"><h2>Добавить участника</h2><p class="muted">Участнику нужен существующий аккаунт в этом HomeInventory. Добавление по имени пользователя не отправляет приглашений или писем.</p><form method="post" class="compact-form">{% csrf_token %}{% include 'inventory/includes/fields.html' with form=membership_form %}<button type="submit" class="button">Сохранить доступ</button></form></section>{% endif %}
+{% endblock %}

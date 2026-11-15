@@ -1,7 +1,17 @@
-# .gitignore
 .env
+.env.*
+!.env.example
 venv/
+.venv/
 __pycache__/
-*.pyc
-db.sqlite3
+*.py[cod]
+*.sqlite3
+*.sqlite3-*
 media/
+staticfiles/
+backups/
+.coverage
+htmlcov/
+.pytest_cache/
+.ruff_cache/
+playwright-results/

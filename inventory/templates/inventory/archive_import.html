@@ -1,0 +1,7 @@
+{% extends 'inventory/base.html' %}
+{% block title %}Восстановить архив — HomeInventory{% endblock %}
+{% block content %}
+<div class="page-heading"><div><h1>Восстановить архив</h1><p class="muted">Архив создаст отдельное приватное пространство. Существующие вещи не будут заменены.</p></div></div>
+{% if error %}<div class="notice notice-error" role="alert">{{ error }}</div>{% endif %}
+{% if preview %}<section class="panel form-panel"><h2>Проверьте содержимое</h2><dl class="metadata"><dt>Пространство</dt><dd>{{ preview.name }}</dd><dt>Категории</dt><dd>{{ preview.categories }}</dd><dt>Места</dt><dd>{{ preview.locations }}</dd><dt>Контейнеры</dt><dd>{{ preview.containers }}</dd><dt>Вещи</dt><dd>{{ preview.items }}</dd></dl><form method="post">{% csrf_token %}<input type="hidden" name="action" value="confirm"><input type="hidden" name="token" value="{{ token }}"><button class="button" type="submit">Восстановить в новое пространство</button></form></section>{% else %}<form method="post" enctype="multipart/form-data" class="panel form-panel">{% csrf_token %}<input type="hidden" name="action" value="preview">{% if form %}{% include 'inventory/includes/fields.html' %}{% else %}<div class="field"><label for="archive-file">Архив HomeInventory (ZIP)</label><input id="archive-file" name="archive" type="file" accept=".zip,application/zip" required></div>{% endif %}<button class="button" type="submit">Проверить архив</button></form>{% endif %}
+{% endblock %}

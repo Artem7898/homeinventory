@@ -1,0 +1,9 @@
+{% extends 'inventory/base.html' %}
+{% block title %}Этикетки — HomeInventory{% endblock %}
+{% block content %}
+<div class="page-heading no-print"><div><p class="eyebrow">Порядок в физическом мире</p><h1>Печатные этикетки</h1><p class="muted">QR открывает карточку после входа. Короткий код можно ввести в сканере вручную.</p></div><button class="button" type="button" data-print>Распечатать</button></div>
+{% if items or containers %}<div class="labels-grid">
+{% for container in containers %}<article class="print-label"><img src="{% url 'inventory:container-qr' container.pk %}" alt="QR контейнера {{ container.name }}" width="150" height="150"><div><p class="eyebrow">Контейнер</p><h2>{{ container.name }}</h2><p class="label-code">{{ container.label_id|stringformat:'s'|slice:':8' }}</p><small>HomeInventory</small></div></article>{% endfor %}
+{% for item in items %}<article class="print-label"><img src="{% url 'inventory:item-qr' item.pk %}" alt="QR вещи {{ item.name }}" width="150" height="150"><div><p class="eyebrow">Вещь</p><h2>{{ item.name }}</h2><p class="label-code">{{ item.label_id|stringformat:'s'|slice:':8' }}</p><small>HomeInventory</small></div></article>{% endfor %}
+</div>{% else %}<section class="empty-state"><h2>Пока нет этикеток</h2><p>Добавьте вещь или контейнер — их коды появятся здесь.</p>{% if can_edit %}<a class="button" href="{% url 'inventory:item-create' %}">Добавить вещь</a>{% endif %}</section>{% endif %}
+{% endblock %}

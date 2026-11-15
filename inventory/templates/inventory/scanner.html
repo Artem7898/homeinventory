@@ -1,42 +1,11 @@
 {% extends 'inventory/base.html' %}
-
-{% block title %}QR Сканер{% endblock %}
-
+{% load static %}
+{% block title %}Сканировать этикетку — HomeInventory{% endblock %}
 {% block content %}
-<div class="text-center mt-5">
-    <h1>📱 Сканируйте QR-код</h1>
-    <p>Наведите камеру на код на коробке</p>
-    
-    <!-- HTML5 QR Code Library -->
-    <div id="qr-reader" style="width: 100%; max-width: 500px; margin: 0 auto;"></div>
-    <div id="qr-result" class="mt-3"></div>
+<div class="page-heading"><div><p class="eyebrow">Найти содержимое</p><h1>Сканировать этикетку</h1><p class="muted">Наведите камеру на QR вещи или контейнера. Камера включится только после нажатия кнопки.</p></div></div>
+<div class="detail-grid">
+<section class="panel scanner-panel" aria-labelledby="camera-heading"><h2 id="camera-heading">Через камеру</h2><div id="qr-reader"></div><p id="scanner-status" class="notice" role="status" aria-live="polite">Камера выключена.</p><div class="form-actions"><button id="scanner-start" class="button" type="button">Включить камеру</button><button id="scanner-stop" class="button button-secondary" type="button" disabled>Остановить</button></div><div class="field file-scan"><label for="scanner-file">Или загрузите изображение QR</label><input id="scanner-file" type="file" accept="image/*"><p class="field-help">Изображение обрабатывается на этом устройстве.</p></div></section>
+<section class="panel"><h2>Ввести код вручную</h2><p class="muted">Введите восемь символов с этикетки, полный код или ссылку. Это поможет, если камера недоступна.</p>{% if manual_error %}<div class="notice notice-error" role="alert">{{ manual_error }}</div>{% endif %}<form id="scanner-code" method="post" action="{% url 'inventory:label-resolve' %}">{% csrf_token %}<div class="field"><label for="label-kind">Тип этикетки</label><select id="label-kind" name="kind"><option value="item">Вещь</option><option value="container">Контейнер</option></select></div><div class="field"><label for="label-code">Код или ссылка</label><input id="label-code" name="code" type="text" required autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="300" placeholder="Например, a1b2c3d4"></div><button class="button" type="submit">Открыть</button></form></section>
 </div>
-
-<script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
-<script>
-    function onScanSuccess(decodedText, decodedResult) {
-        // decodedText = "http://127.0.0.1:8000/item/1/"
-        const itemId = decodedText.split('/').slice(-2, -1)[0];
-        
-        // Переходим на API
-        fetch(`/api/items/${itemId}/`)
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('qr-result').innerHTML = `
-                    <div class="alert alert-success">
-                        <h3>${data.name}</h3>
-                        <p>Место: ${data.location || 'Не указано'}</p>
-                        <a href="/item/${itemId}/" class="btn btn-primary">Открыть</a>
-                    </div>
-                `;
-            });
-    }
-    
-    const html5QrCode = new Html5Qrcode("qr-reader");
-    html5QrCode.start(
-        { facingMode: "environment" },  // Задняя камера
-        { fps: 10, qrbox: 250 },
-        onScanSuccess
-    );
-</script>
 {% endblock %}
+{% block scripts %}<script src="{% static 'vendor/html5-qrcode.min.js' %}" defer></script><script src="{% static 'inventory/scanner.js' %}" defer></script>{% endblock %}

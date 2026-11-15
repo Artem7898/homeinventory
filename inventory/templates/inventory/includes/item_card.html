@@ -1,0 +1,10 @@
+<article class="item-card">
+    <a class="item-image" href="{% url 'inventory:item-detail' item.pk %}" tabindex="-1" aria-hidden="true">
+        {% if item.photo %}<img src="{{ item.photo.url }}" alt="" loading="lazy" width="480" height="320">{% else %}<span class="image-placeholder" aria-hidden="true">▦</span>{% endif %}
+    </a>
+    <div class="card-content">
+        <h2 class="card-title"><a href="{% url 'inventory:item-detail' item.pk %}">{{ item.name }}</a></h2>
+        <p class="muted location-line">{% if item.container %}{{ item.container.location|default:'Место не выбрано' }} · {{ item.container.name }}{% else %}{{ item.location|default:'Место не выбрано' }}{% endif %}</p>
+        {% if item.category %}<span class="tag">{{ item.category.name }}</span>{% endif %}
+    </div>
+</article>

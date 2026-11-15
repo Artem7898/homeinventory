@@ -1,36 +1,43 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Домашний инвентарь{% endblock %}</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .qr-code { max-width: 200px; margin: 20px auto; }
-        .item-card { transition: transform 0.2s; }
-        .item-card:hover { transform: scale(1.02); }
-    </style>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="color-scheme" content="light">
+    <title>{% block title %}HomeInventory — вещи на своём месте{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'inventory/app.css' %}">
+    <script src="{% static 'inventory/app.js' %}" defer></script>
+    {% block head %}{% endblock %}
 </head>
 <body>
-    <nav class="navbar navbar-dark bg-primary">
-    <div class="container">
-        <a class="navbar-brand" href="{% url 'inventory:item-list' %}">📦 Домашний инвентарь</a>
-
-        <!-- Форма поиска -->
-        <form class="d-flex" action="{% url 'inventory:search' %}" method="get">
-            <input class="form-control me-2" type="search" name="q" placeholder="Найти...">
-            <button class="btn btn-outline-light" type="submit">🔍</button>
-        </form>
-
-        <a href="{% url 'admin:index' %}" class="btn btn-outline-light btn-sm">Админка</a>
-        <a href="{% url 'inventory:export-csv' %}" class="btn btn-success">📥 Скачать CSV</a>
+<a class="skip-link" href="#main">Перейти к содержимому</a>
+<header class="site-header">
+    <div class="shell header-inner">
+        <a class="brand" href="{% url 'inventory:item-list' %}"><span class="brand-mark" aria-hidden="true">▦</span> HomeInventory</a>
+        {% if user.is_authenticated %}
+        <nav aria-label="Основная навигация" class="main-nav">
+            <a href="{% url 'inventory:item-list' %}">Вещи</a>
+            <a href="{% url 'inventory:container-list' %}">Контейнеры</a>
+            <a href="{% url 'inventory:scanner' %}">Сканировать</a>
+            <a href="{% url 'workspaces:workspace-list' %}">Пространства</a>
+            <a href="{% url 'archives:import' %}">Восстановить архив</a>
+        </nav>
+        <form action="{% url 'logout' %}" method="post" class="logout-form">{% csrf_token %}<button class="button button-quiet" type="submit">Выйти<span class="sr-only"> из аккаунта {{ user.get_username }}</span></button></form>
+        {% endif %}
     </div>
-</nav>
-
-    <main class="container mt-4">
-        {% block content %}{% endblock %}
-    </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</header>
+<main id="main" class="shell main-content" tabindex="-1">
+    {% if messages %}<div class="messages" aria-live="polite">{% for message in messages %}<div class="notice{% if message.tags %} notice-{{ message.tags }}{% endif %}">{{ message }}</div>{% endfor %}</div>{% endif %}
+    {% if workspace %}
+    <div class="workspace-bar">
+        <span><span class="muted">Пространство</span> <strong>{{ workspace.name }}</strong></span>
+        {% if can_manage %}<a href="{% url 'workspaces:members' workspace.pk %}">Участники и доступ</a>{% endif %}
+    </div>
+    {% endif %}
+    {% block content %}{% endblock %}
+</main>
+<footer class="site-footer shell"><p>HomeInventory · Найти вещь. Сохранить порядок. Поделиться осознанно.</p></footer>
+{% block scripts %}{% endblock %}
 </body>
 </html>

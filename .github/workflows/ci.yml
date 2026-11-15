@@ -1,0 +1,55 @@
+name: checks
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        database: [sqlite, postgres]
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: inventory
+          POSTGRES_PASSWORD: inventory-ci-only
+          POSTGRES_DB: inventory
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U inventory" --health-interval 5s
+          --health-timeout 5s --health-retries 10
+    env:
+      DEBUG: "True"
+      PUBLIC_BASE_URL: http://localhost:8000
+      DB_SSLMODE: disable
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: "3.14"
+          cache: pip
+      - run: sudo apt-get update && sudo apt-get install -y libpq-dev
+      - run: python -m pip install --require-hashes -r requirements-dev.txt
+      - name: Select database
+        if: matrix.database == 'postgres'
+        run: echo "DATABASE_URL=postgresql://inventory:inventory-ci-only@localhost:5432/inventory" >> "$GITHUB_ENV"
+      - run: python manage.py check --settings=config.test_settings
+      - run: python manage.py makemigrations --check --dry-run --settings=config.test_settings
+      - run: python manage.py test --settings=config.test_settings
+      - run: ruff check .
+      - run: pip-audit --require-hashes -r requirements.txt --progress-spinner off
+      - run: python manage.py collectstatic --noinput
+      - name: Browser smoke
+        if: matrix.database == 'sqlite'
+        run: |
+          python -m playwright install --with-deps chromium
+          python scripts/browser_smoke.py
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+      - run: docker build -t homeinventory:test .
+      - run: ./scripts/docker_smoke.sh homeinventory:test

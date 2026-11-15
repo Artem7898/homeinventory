@@ -1,12 +1,3 @@
-<!-- templates/404.html -->
-<!DOCTYPE html>
-<html>
-<head>
-    <title>404 - Страница не найдена</title>
-</head>
-<body>
-    <h1>404 - Страница не найдена</h1>
-    <p>Извините, запрашиваемая страница не существует.</p>
-    <p><a href="/">Вернуться на главную</a></p>
-</body>
-</html>
+{% extends 'inventory/error.html' %}
+{% block title %}Страница не найдена — HomeInventory{% endblock %}
+{% block content %}<section class="empty-state"><p class="eyebrow">404</p><h1>Страница не найдена</h1><p>Возможно, ссылка устарела или у вас нет доступа к этому пространству.</p><a class="button" href="{% url 'inventory:item-list' %}">В каталог</a></section>{% endblock %}

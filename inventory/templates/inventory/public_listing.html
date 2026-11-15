@@ -1,0 +1,5 @@
+{% extends 'inventory/base.html' %}
+{% block title %}{{ listing.title }} — HomeInventory{% endblock %}
+{% block content %}
+<article class="panel public-listing"><p class="eyebrow">Публичное описание</p><h1>{{ listing.title }}</h1><div class="description">{{ listing.description|linebreaks }}</div><p class="muted">Владелец разрешил показать только это описание. Остальные данные каталога закрыты.</p></article>
+{% endblock %}

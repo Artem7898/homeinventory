@@ -1,6 +1,6 @@
 # syntax=docker/dockerfile:1
 # Refresh this patch/digest when rebuilding and rerun the regression suite.
-FROM python:3.14.10-slim AS builder
+FROM python:3.15.2-slim AS builder
 ENV PIP_DISABLE_PIP_VERSION_CHECK=1 PYTHONDONTWRITEBYTECODE=1
 WORKDIR /build
 RUN --mount=type=secret,id=proxy_ca \
@@ -11,7 +11,7 @@ RUN --mount=type=secret,id=proxy_ca \
     if [ -f /run/secrets/proxy_ca ]; then export PIP_CERT=/run/secrets/proxy_ca; fi; \
     python -m venv /opt/venv && /opt/venv/bin/pip install --no-cache-dir --require-hashes -r requirements.txt
 
-FROM python:3.14.10-slim AS runtime
+FROM python:3.15.2-slim AS runtime
 ENV PYTHONDONTWRITEBYTECODE=1 PYTHONUNBUFFERED=1 PATH="/opt/venv/bin:$PATH" PORT=8000
 WORKDIR /app
 RUN --mount=type=secret,id=proxy_ca \

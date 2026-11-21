@@ -56,7 +56,7 @@ class Item(WorkspaceBoundModel):
         verbose_name = 'Вещь'
         verbose_name_plural = 'Вещи'
         ordering = ['-created_at', '-pk']
-        constraints = [models.CheckConstraint(check=~(models.Q(location__isnull=False) & models.Q(container__isnull=False)), name='item_has_one_place')]
+        constraints = [models.CheckConstraint(condition=~(models.Q(location__isnull=False) & models.Q(container__isnull=False)), name='item_has_one_place')]
 
     def __str__(self):
         return self.name
@@ -93,7 +93,7 @@ class Movement(WorkspaceBoundModel):
 
     class Meta:
         ordering = ['-created_at', '-pk']
-        constraints = [models.CheckConstraint(check=(models.Q(item__isnull=False, container__isnull=True) | models.Q(item__isnull=True, container__isnull=False)), name='movement_has_one_subject')]
+        constraints = [models.CheckConstraint(condition=(models.Q(item__isnull=False, container__isnull=True) | models.Q(item__isnull=True, container__isnull=False)), name='movement_has_one_subject')]
 
 
 class Loan(WorkspaceBoundModel):

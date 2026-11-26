@@ -18,9 +18,9 @@ django==6.1.3 \
     #   dj-database-url
     #   django-axes
     #   django-unfold
-django-axes==9.0.0 \
-    --hash=sha256:863aef4563673c1e77bb3d21be1ba1d2612b0cf9d5365c27c9af9ae1c614c3c0 \
-    --hash=sha256:fb7b0322a09d8f090d5a980690cb5468dc1903d3d950f1968c4e067348d58059
+django-axes==9.1.0 \
+    --hash=sha256:45898b0ab88b8a429d8cca0fac72fd3b000bd53989a4ee41e62fa9350fea2045 \
+    --hash=sha256:cb28091b39a5d6d291ca049f2329f06f08c70dbba78627a42b59ae1e2defb906
     # via -r requirements.in
 django-unfold==0.110.1 \
     --hash=sha256:8274da7e3c92583c7f875b3ac3ceef0ed75346a1a28b03bede667aba3205e286 \

@@ -8,4 +8,4 @@ python-dotenv==1.2.4
 django-unfold==0.110.1
 Pillow==13.0.0
 qrcode==8.2
-django-axes==9.0.0
+django-axes==9.1.0
